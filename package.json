@@ -1,0 +1,86 @@
+{
+  "name": "syrex",
+  "version": "1.0.0",
+  "description": "Passador de Replay Automático",
+  "author": "Willian",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --win nsis",
+    "clean": "rimraf dist",
+    "secure": "node build-secure.js"
+  },
+  "devDependencies": {
+    "electron": "^28.3.0",
+    "electron-builder": "^24.13.3",
+    "javascript-obfuscator": "^5.4.3",
+    "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "build": {
+    "appId": "com.syrex.unified",
+    "productName": "SYREX",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "activation.js",
+      "index.html",
+      "activation.html",
+      "services/**/*.js",
+      "config/**/*.js",
+      "watcher/**/*.js",
+      "!watcher/temp_manual/**",
+      "node_modules/@supabase/**/*",
+      "!node_modules/electron/**",
+      "!node_modules/electron-builder/**",
+      "!**/*.map",
+      "!**/*.log"
+    ],
+    "extraResources": [
+      {
+        "from": "adb/",
+        "to": "adb/",
+        "filter": [
+          "*.exe",
+          "*.dll"
+        ]
+      },
+      {
+        "from": "build/",
+        "to": "build/",
+        "filter": [
+          "icon.ico"
+        ]
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SYREX",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false
+    },
+    "compression": "maximum",
+    "asar": true
+  }
+}

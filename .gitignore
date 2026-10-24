@@ -1,0 +1,9 @@
+config/
+supabase/
+dist/
+build/
+node_modules/
+backup_temp/
+services/integrityHashes.json
+services/hwidSalt.json
+services/licenseApi.js

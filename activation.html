@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=520, initial-scale=1.0" />
+  <title>SYREX - Ativação</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .card {
+      width: 430px;
+      padding: 28px;
+      border-radius: 20px;
+      background: #0a0a0a;
+      border: 1px solid #1f1f1f;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+    .logo { margin-bottom: 18px; }
+    .logo h1 {
+      font-size: 40px;
+      line-height: 1;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+      font-weight: 800;
+      user-select: none;
+    }
+    .logo p {
+      color: #888888;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .info-box {
+      background: #050505;
+      border: 1px solid #151515;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .info-box span {
+      display: block;
+      color: #666666;
+      font-size: 11px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .info-box strong {
+      color: #3a6ea5;
+      font-size: 13px;
+      word-break: break-word;
+      font-family: Consolas, "Courier New", monospace;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #1f1f1f;
+      background: #050505;
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
+    }
+    input:focus {
+      border-color: #3a6ea5;
+      box-shadow: 0 0 0 2px rgba(58, 110, 165, 0.2);
+    }
+    input::placeholder { color: #333333; }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .checkbox-row input {
+      width: 16px;
+      margin: 0;
+      accent-color: #3a6ea5;
+    }
+    .checkbox-row label {
+      font-size: 12px;
+      color: #888;
+      cursor: pointer;
+      user-select: none;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1a2a3a, #0f1a24);
+      border: 1px solid #3a6ea5;
+      color: #3a6ea5;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    button:hover { 
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, #1f3040, #14202a);
+      box-shadow: 0 4px 12px rgba(58, 110, 165, 0.2);
+    }
+    button:active { transform: translateY(0); }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .msg {
+      margin-top: 14px;
+      min-height: 20px;
+      font-size: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .err { 
+      color: #f44336;
+      background: rgba(244, 67, 54, 0.1);
+      border: 1px solid rgba(244, 67, 54, 0.3);
+    }
+    .ok { 
+      color: #4caf50;
+      background: rgba(76, 175, 80, 0.1);
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    .info {
+      color: #3a6ea5;
+      background: rgba(58, 110, 165, 0.1);
+      border: 1px solid rgba(58, 110, 165, 0.3);
+    }
+    .footer {
+      margin-top: 16px;
+      color: #444444;
+      font-size: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <h1>SYREX</h1>
+      <p>ative sua licença para acessar o syrex</p>
+    </div>
+
+    <div class="info-box">
+      <span>🖥 IDENTIFICADOR DA MÁQUINA</span>
+      <strong id="machineIdText">Carregando...</strong>
+    </div>
+
+    <input id="keyInput" type="text" placeholder="SYREX-XXXXX-XXXXX-XXXXX" autocomplete="off" />
+    
+    <div class="checkbox-row">
+      <input type="checkbox" id="saveKeyCheckbox" checked />
+      <label for="saveKeyCheckbox">Lembrar minha chave</label>
+    </div>
+
+    <button id="activateBtn">ATIVAR LICENÇA</button>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="footer">
+      a licença será vinculada a este computador
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require("electron");
+    const { getMachineId } = require("./services/machineId");
+
+    const keyInput = document.getElementById("keyInput");
+    const activateBtn = document.getElementById("activateBtn");
+    const msg = document.getElementById("msg");
+    const machineIdText = document.getElementById("machineIdText");
+    const saveKeyCheckbox = document.getElementById("saveKeyCheckbox");
+
+    const STORAGE_KEY = "syrex_saved_key";
+
+    function setMessage(text, type = "info") {
+      msg.textContent = text;
+      msg.className = "msg";
+      if (type === "error") {
+        msg.classList.add("err");
+      } else if (type === "success") {
+        msg.classList.add("ok");
+      } else {
+        msg.classList.add("info");
+      }
+    }
+
+    function formatMachineId(id) {
+      if (!id) return "Indisponível";
+      if (id.length <= 32) return id;
+      return `${id.slice(0, 16)}...${id.slice(-12)}`;
+    }
+
+    function saveKey(key) {
+      if (saveKeyCheckbox.checked) {
+        localStorage.setItem(STORAGE_KEY, key);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    function loadSavedKey() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        keyInput.value = saved;
+        saveKeyCheckbox.checked = true;
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      try {
+        const machineId = getMachineId();
+        machineIdText.textContent = formatMachineId(machineId);
+        loadSavedKey();
+      } catch (error) {
+        console.error("Erro ao carregar machineId:", error);
+        machineIdText.textContent = "Erro ao carregar";
+      }
+    });
+
+    activateBtn.addEventListener("click", async () => {
+      const key = keyInput.value.trim();
+
+      if (!key) {
+        setMessage("Digite uma key.", "error");
+        return;
+      }
+
+      try {
+        activateBtn.disabled = true;
+        activateBtn.textContent = "Validando...";
+        setMessage("Validando licença...");
+
+        const result = await ipcRenderer.invoke("activate-license", key);
+
+        if (!result.ok) {
+          setMessage(result.message || "Falha na ativação.", "error");
+          activateBtn.disabled = false;
+          activateBtn.textContent = "ATIVAR LICENÇA";
+          return;
+        }
+
+        saveKey(key);
+        setMessage("Licença ativada com sucesso!", "success");
+        activateBtn.textContent = "✓ ATIVADO";
+
+        setTimeout(async () => {
+          await ipcRenderer.invoke("open-main-app");
+        }, 700);
+      } catch (error) {
+        console.error("Erro na ativação:", error);
+        setMessage("Erro de conexão com o servidor.", "error");
+        activateBtn.disabled = false;
+        activateBtn.textContent = "ATIVAR LICENÇA";
+      }
+    });
+
+    keyInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        activateBtn.click();
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      const key = e.key.toLowerCase();
+      if (
+        key === "f12" ||
+        key === "alt" ||
+        (e.ctrlKey && e.shiftKey && key === "i") ||
+        (e.ctrlKey && e.shiftKey && key === "j") ||
+        (e.ctrlKey && key === "u")
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    });
+
+    window.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      return false;
+    });
+  </script>
+</body>
+</html>

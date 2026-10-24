@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1100, initial-scale=1.0" />
+  <title>SYREX</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #000000;
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .app {
+      width: 1100px;
+      height: 700px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .sidebar {
+      background: #0a0a0a;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .main {
+      background: #050505;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .brand {
+      text-align: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #1f1f1f;
+      margin-bottom: 20px;
+    }
+    .brand h1 {
+      font-size: 36px;
+      line-height: 1;
+      color: #ffffff;
+      letter-spacing: 1px;
+      font-weight: 800;
+    }
+    .brand p {
+      color: #666;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    .game-section {
+      margin-bottom: 24px;
+    }
+    .game-title {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .game-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .game-btn {
+      background: #0d0d0d;
+      border: 1px solid #252525;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #888;
+    }
+    .game-btn:hover {
+      background: #141414;
+      border-color: #3a6ea5;
+      color: #fff;
+    }
+    .game-btn.active {
+      background: #0f1a24;
+      border-color: #3a6ea5;
+      color: #3a6ea5;
+    }
+    .status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .status-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0d0d0d;
+      border: 1px solid #181818;
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .status-item .label {
+      color: #777;
+      font-size: 12px;
+    }
+    .status-item .value {
+      font-weight: 600;
+      font-size: 12px;
+      color: #ddd;
+      max-width: 150px;
+      text-align: right;
+      word-break: break-word;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #0d0d0d;
+      border: 1px solid #252525;
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .status-active { color: #4caf50; }
+    .status-reconnecting { color: #ff9800; }
+    .status-off { color: #f44336; }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: auto;
+    }
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: #0d0d0d;
+      color: #ccc;
+      border: 1px solid #252525;
+    }
+    button:hover {
+      background: #141414;
+      transform: translateY(-1px);
+    }
+    button:active { transform: translateY(0); }
+    .btn-primary {
+      background: linear-gradient(135deg, #1a2a3a, #0f1a24);
+      border-color: #3a6ea5;
+      color: #3a6ea5;
+    }
+    .btn-primary.parar {
+      background: linear-gradient(135deg, #3a1a1a, #2a0f0f);
+      border-color: #f44336;
+      color: #f44336;
+    }
+    .btn-warning {
+      border-color: #5a3a1a;
+      color: #ff9800;
+    }
+    .btn-warning:hover {
+      background: #1f1408;
+    }
+    .console-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: #0a0a0a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .console-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #aaa;
+    }
+    .console-title .icon {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      background: #0d0d0d;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .console-badge {
+      font-size: 10px;
+      color: #555;
+      background: #0a0a0a;
+      border: 1px solid #1f1f1f;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .console-body {
+      flex: 1;
+      background: #010101;
+      margin: 12px;
+      border-radius: 10px;
+      border: 1px solid #121212;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .console-topbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: #080808;
+      border-bottom: 1px solid #121212;
+    }
+    .traffic {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .t1 { background: #ff5f57; }
+    .t2 { background: #febb2e; }
+    .t3 { background: #28c840; }
+    .console-log {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      font-family: Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #aaa;
+    }
+    .console-log::-webkit-scrollbar { width: 6px; }
+    .console-log::-webkit-scrollbar-track { background: #0a0a0a; }
+    .console-log::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+    .log-line { margin-bottom: 4px; }
+    .log-time { color: #555; margin-right: 8px; }
+    .log-info { color: #aaa; }
+    .log-success { color: #4caf50; }
+    .log-warn { color: #ff9800; }
+    .log-error { color: #f44336; }
+    .footer-note {
+      font-size: 10px;
+      color: #444;
+      padding: 8px 20px;
+      background: #050505;
+      border-top: 1px solid #0f0f0f;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: #0a0a0a; }
+    .sidebar::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>SYREX</h1>
+        <p>Passador de Replay</p>
+      </div>
+
+      <div class="game-section">
+        <div class="game-title">selecionar jogo</div>
+        <div class="game-buttons">
+          <div class="game-btn active" data-game="max">🔥 FREE FIRE MAX</div>
+          <div class="game-btn" data-game="normal">🎮 FREE FIRE NORMAL</div>
+        </div>
+      </div>
+
+      <div class="status-list">
+        <div class="status-item">
+          <span class="label">EMULADOR</span>
+          <span class="value" id="emuStatus">---</span>
+        </div>
+        <div class="status-item">
+          <span class="label">CELULAR</span>
+          <span class="value" id="phoneStatus">---</span>
+        </div>
+        <div class="status-item">
+          <span class="label">JOGO</span>
+          <span class="value" id="gameStatus">---</span>
+        </div>
+        <div class="status-item">
+          <span class="label">STATUS</span>
+          <span class="pill status-off" id="runStatus">
+            <span class="dot"></span> offline
+          </span>
+        </div>
+        <div class="status-item">
+          <span class="label">LICENÇA</span>
+          <span class="value" id="licenseStatus">---</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="btnIniciar">▶ INICIAR</button>
+        <button id="btnReconectar">⟳ RECONECTAR</button>
+        <button id="btnTransferir">📤 TRANSFERIR</button>
+        <button class="btn-warning" id="btnFecharApps">✕ FECHAR APPS</button>
+      </div>
+    </aside>
+
+    <section class="main">
+      <div class="console-header">
+        <div class="console-title">
+          <div class="icon">⌨</div>
+          <span>CONSOLE</span>
+        </div>
+        <div class="console-badge">live</div>
+      </div>
+
+      <div class="console-body">
+        <div class="console-topbar">
+          <div class="traffic t1"></div>
+          <div class="traffic t2"></div>
+          <div class="traffic t3"></div>
+        </div>
+        <div class="console-log" id="log"></div>
+      </div>
+
+      <div class="footer-note">logs em tempo real • replay transfer</div>
+    </section>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require("electron");
+    const watcher = require("./watcher/replayWatcher");
+    const transferAll = require("./watcher/transferAll");
+
+    const emuStatus = document.getElementById("emuStatus");
+    const phoneStatus = document.getElementById("phoneStatus");
+    const gameStatus = document.getElementById("gameStatus");
+    const runStatus = document.getElementById("runStatus");
+    const licenseStatus = document.getElementById("licenseStatus");
+    const btnIniciar = document.getElementById("btnIniciar");
+    const btnReconectar = document.getElementById("btnReconectar");
+    const btnTransferir = document.getElementById("btnTransferir");
+    const btnFecharApps = document.getElementById("btnFecharApps");
+    const log = document.getElementById("log");
+
+    let monitoramentoAtivo = false;
+    let jogoSelecionado = "max";
+    let countdownInterval = null;
+    let onlineValidationInterval = null;
+    let expirandoAgora = false;
+
+    function horaAtual() {
+      return new Date().toLocaleTimeString("pt-BR");
+    }
+
+    function addLog(message, type = "info") {
+      const line = document.createElement("div");
+      line.className = "log-line";
+      line.innerHTML = `<span class="log-time">[${horaAtual()}]</span> <span class="log-${type}">${message}</span>`;
+      log.appendChild(line);
+      line.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function setRunStatus(mode) {
+      runStatus.classList.remove("status-active", "status-reconnecting", "status-off");
+      if (mode === "active") {
+        runStatus.classList.add("status-active");
+        runStatus.innerHTML = '<span class="dot"></span> active';
+      } else if (mode === "reconnecting") {
+        runStatus.classList.add("status-reconnecting");
+        runStatus.innerHTML = '<span class="dot"></span> reconnecting';
+      } else {
+        runStatus.classList.add("status-off");
+        runStatus.innerHTML = '<span class="dot"></span> offline';
+      }
+    }
+
+    function setBotaoIniciar(ativo) {
+      if (ativo) {
+        btnIniciar.textContent = "⏹ PARAR";
+        btnIniciar.classList.add("parar");
+      } else {
+        btnIniciar.textContent = "▶ INICIAR";
+        btnIniciar.classList.remove("parar");
+      }
+    }
+
+    document.querySelectorAll(".game-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".game-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        jogoSelecionado = btn.dataset.game;
+        watcher.setGameType(jogoSelecionado);
+        addLog(`🎮 ${btn.innerText} selecionado`, "info");
+      });
+    });
+
+    async function iniciarMonitoramento() {
+      try {
+        addLog("▶ Iniciando monitoramento...");
+        setRunStatus("reconnecting");
+        setBotaoIniciar(true);
+        monitoramentoAtivo = true;
+        await watcher.iniciar(jogoSelecionado);
+        addLog("✅ Monitoramento iniciado", "success");
+        setRunStatus("active");
+      } catch (err) {
+        setRunStatus("off");
+        setBotaoIniciar(false);
+        monitoramentoAtivo = false;
+        addLog(`❌ Erro: ${err.message}`, "error");
+      }
+    }
+
+    async function pararMonitoramento() {
+      try {
+        addLog("⏹ Parando monitoramento...");
+        setRunStatus("reconnecting");
+        await watcher.parar();
+        monitoramentoAtivo = false;
+        setBotaoIniciar(false);
+        setRunStatus("off");
+        addLog("✅ Monitoramento parado", "success");
+      } catch (err) {
+        addLog(`❌ Erro: ${err.message}`, "error");
+      }
+    }
+
+    btnIniciar.addEventListener("click", async () => {
+      if (monitoramentoAtivo) {
+        await pararMonitoramento();
+      } else {
+        await iniciarMonitoramento();
+      }
+    });
+
+    btnReconectar.addEventListener("click", async () => {
+      try {
+        addLog("⟳ Reconectando...");
+        setRunStatus("reconnecting");
+        await watcher.reconectar(jogoSelecionado);
+        addLog("✅ Reconectado", "success");
+        if (monitoramentoAtivo) setRunStatus("active");
+        else setRunStatus("off");
+      } catch (err) {
+        setRunStatus("off");
+        addLog(`❌ Erro: ${err.message}`, "error");
+      }
+    });
+
+    btnTransferir.addEventListener("click", async () => {
+      try {
+        addLog("📤 Transferindo replay...");
+        setRunStatus("reconnecting");
+        await transferAll.transferirTudo({ gameType: jogoSelecionado });
+        addLog("✅ Transferência concluída!", "success");
+        if (monitoramentoAtivo) setRunStatus("active");
+        else setRunStatus("off");
+      } catch (err) {
+        setRunStatus("off");
+        addLog(`❌ Erro: ${err.message}`, "error");
+      }
+    });
+
+    btnFecharApps.addEventListener("click", async () => {
+      try {
+        addLog("✕ Fechando Termux e Brevent...");
+        const result = await ipcRenderer.invoke("fechar-termux-brevent");
+        if (result?.ok) {
+          addLog("✅ Apps fechados", "success");
+        } else {
+          addLog(`❌ ${result?.message || "Erro"}`, "error");
+        }
+      } catch (err) {
+        addLog(`❌ Erro: ${err.message}`, "error");
+      }
+    });
+
+    const oldLog = console.log;
+    const oldWarn = console.warn;
+    const oldError = console.error;
+
+    console.log = (...args) => {
+      oldLog(...args);
+      const msg = args.join(" ");
+      addLog(msg, "info");
+      if (msg.includes("Emulador-(")) emuStatus.textContent = msg.replace("Emulador-(", "").replace(")", "");
+      if (msg.includes("Real Device -")) phoneStatus.textContent = msg.replace("Real Device -", "");
+      if (msg.includes("JOGO DETECTADO:")) gameStatus.textContent = msg.replace("JOGO DETECTADO:", "").trim();
+    };
+
+    console.warn = (...args) => {
+      oldWarn(...args);
+      addLog(args.join(" "), "warn");
+    };
+
+    console.error = (...args) => {
+      oldError(...args);
+      addLog(args.join(" "), "error");
+    };
+
+    function formatarTempoRestante(diffMs) {
+      const totalSec = Math.floor(diffMs / 1000);
+      const dias = Math.floor(totalSec / 86400);
+      const horas = Math.floor((totalSec % 86400) / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const segs = totalSec % 60;
+      const hh = String(horas).padStart(2, "0");
+      const mm = String(mins).padStart(2, "0");
+      const ss = String(segs).padStart(2, "0");
+      return dias > 0 ? `${dias}d ${hh}:${mm}:${ss}` : `${hh}:${mm}:${ss}`;
+    }
+
+    async function expirarLicenca(mensagem) {
+      if (expirandoAgora) return;
+      expirandoAgora = true;
+      try {
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (onlineValidationInterval) clearInterval(onlineValidationInterval);
+        licenseStatus.textContent = "expirada";
+        licenseStatus.style.color = "#f44336";
+        alert(mensagem);
+        await ipcRenderer.invoke("logout-license");
+      } catch (err) {}
+    }
+
+    function iniciarCountdown(expiraEm) {
+      const expira = new Date(expiraEm);
+      function tick() {
+        const diff = expira.getTime() - Date.now();
+        if (diff <= 0) {
+          expirarLicenca("Sua licença expirou.");
+          return;
+        }
+        licenseStatus.textContent = formatarTempoRestante(diff);
+        licenseStatus.style.color = diff <= 86400000 ? "#ff9800" : "#4caf50";
+      }
+      tick();
+      if (countdownInterval) clearInterval(countdownInterval);
+      countdownInterval = setInterval(tick, 1000);
+    }
+
+    async function carregarLicenca() {
+      try {
+        const result = await ipcRenderer.invoke("get-license-status");
+        if (!result.ok && !result.activated) {
+          licenseStatus.textContent = result.status || "sem licença";
+          licenseStatus.style.color = "#f44336";
+          return;
+        }
+        if (result.lifetime) {
+          licenseStatus.textContent = "lifetime";
+          licenseStatus.style.color = "#4caf50";
+          return;
+        }
+        if (result.expires_at) {
+          iniciarCountdown(result.expires_at);
+          return;
+        }
+        licenseStatus.textContent = "ativa";
+        licenseStatus.style.color = "#4caf50";
+      } catch (err) {
+        licenseStatus.textContent = "erro";
+        licenseStatus.style.color = "#f44336";
+      }
+    }
+
+    async function validarLicencaOnline() {
+      try {
+        const result = await ipcRenderer.invoke("validate-license-online");
+        if (!result.ok) await expirarLicenca(result.message || "Licença invalidada.");
+      } catch (err) {}
+    }
+
+    function iniciarProtecao() {
+      if (onlineValidationInterval) clearInterval(onlineValidationInterval);
+      onlineValidationInterval = setInterval(validarLicencaOnline, 10 * 60 * 1000);
+    }
+
+    window.addEventListener("keydown", (e) => {
+      const key = e.key.toLowerCase();
+      if (key === "f12" || key === "alt" ||
+          (e.ctrlKey && e.shiftKey && (key === "i" || key === "j")) ||
+          (e.ctrlKey && key === "u")) {
+        e.preventDefault();
+        return false;
+      }
+    });
+    window.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    addLog("✅ SYREX carregado", "success");
+    setRunStatus("off");
+    carregarLicenca();
+    iniciarProtecao();
+    watcher.setGameType("max");
+  </script>
+</body>
+</html>
